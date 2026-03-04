@@ -184,6 +184,84 @@
   /* Proto footer */
   .proto-foot { text-align: center; padding: 8px; font-size: 11px; color: var(--dj-muted); background: var(--dj-purple-light); border-top: 1px solid #C4B5FD; }
   .proto-foot a { color: var(--dj-purple); cursor: pointer; font-weight: 600; }
+
+  /* ── Customer View Overlay ── */
+  .cv-ov { position: fixed; inset: 0; background: #F3F4F6; z-index: 900; overflow-y: auto; display: none; }
+  .cv-ov.on { display: block; }
+  .cv-topbar { background: #fff; border-bottom: 1px solid var(--dj-border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cv-topbar .logo { font-weight: 700; font-size: 16px; color: var(--dj-purple); }
+  .cv-topbar .back-btn { border: 1px solid var(--dj-border); background: #fff; color: var(--dj-text); border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: border-color .15s, background .15s; }
+  .cv-topbar .back-btn:hover { border-color: var(--dj-purple); color: var(--dj-purple); background: var(--dj-purple-light); }
+  .cv-body { max-width: 960px; margin: 0 auto; padding: 28px 20px 120px; }
+  .cv-proposal-info { text-align: center; margin-bottom: 28px; }
+  .cv-proposal-info h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .cv-proposal-info .cv-meta { font-size: 13px; color: var(--dj-muted); }
+
+  /* Package cards grid */
+  .cv-pkg-grid { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+  .cv-pkg-card { background: #fff; border: 2px solid var(--dj-border); border-radius: 12px; padding: 20px 20px 16px; flex: 1 1 240px; max-width: 300px; min-width: 220px; position: relative; overflow: hidden; display: flex; flex-direction: column; transition: border-color .2s, box-shadow .2s; cursor: default; }
+  .cv-pkg-card.cv-recommended { border-color: var(--dj-purple); }
+  .cv-pkg-card.cv-selected { border-color: var(--dj-teal); box-shadow: 0 0 0 3px rgba(20,184,166,.15); }
+
+  /* Recommended ribbon */
+  .cv-ribbon { position: absolute; top: 14px; right: -28px; background: var(--dj-purple); color: #fff; font-size: 9px; font-weight: 800; letter-spacing: .08em; padding: 4px 36px; transform: rotate(45deg); text-transform: uppercase; }
+
+  /* Radio circle */
+  .cv-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--dj-border); margin-bottom: 12px; flex-shrink: 0; transition: border-color .2s, background .2s; }
+  .cv-pkg-card.cv-selected .cv-radio { border-color: var(--dj-teal); background: var(--dj-teal); box-shadow: inset 0 0 0 3px #fff; }
+  .cv-pkg-card.cv-recommended .cv-radio { border-color: var(--dj-purple); }
+
+  .cv-pkg-name { font-weight: 700; font-size: 16px; text-align: center; margin-bottom: 4px; }
+  .cv-pkg-card.cv-recommended .cv-pkg-name { color: var(--dj-purple); }
+  .cv-pkg-desc { font-size: 12px; color: var(--dj-muted); text-align: center; margin-bottom: 14px; line-height: 1.4; }
+  .cv-pkg-price { text-align: center; margin-bottom: 14px; }
+  .cv-pkg-price sup { font-size: 16px; font-weight: 700; vertical-align: super; line-height: 1; }
+  .cv-pkg-price .amt { font-size: 40px; font-weight: 800; line-height: 1; }
+  .cv-pkg-divider { border-top: 1px solid var(--dj-border); margin-bottom: 12px; }
+  .cv-feat-list { flex: 1; list-style: none; padding: 0; margin: 0 0 16px; }
+  .cv-feat-list li { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--dj-gray-bg); }
+  .cv-feat-list li:last-child { border-bottom: none; }
+  .cv-feat-list .chk { color: var(--dj-teal); font-size: 13px; }
+  .cv-select-btn { width: 100%; border: 1px solid var(--dj-border); background: #fff; color: var(--dj-text); border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+  .cv-select-btn:hover { border-color: var(--dj-purple); color: var(--dj-purple); }
+  .cv-select-btn.selected { background: var(--dj-teal); border-color: var(--dj-teal); color: #fff; }
+  .cv-select-btn.selected:hover { background: #0d9488; border-color: #0d9488; }
+
+  /* Investment section */
+  .cv-invest { background: #fff; border-radius: 12px; border: 1px solid var(--dj-border); margin-bottom: 20px; overflow: hidden; }
+  .cv-invest-hdr { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--dj-border); }
+  .cv-invest-icon { width: 32px; height: 32px; background: #1E293B; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; flex-shrink: 0; }
+  .cv-invest-hdr span { font-weight: 700; font-size: 15px; }
+  .cv-invest-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 18px; font-size: 13px; border-bottom: 1px solid var(--dj-border); }
+  .cv-invest-row:last-child { border-bottom: none; }
+  .cv-invest-total { background: var(--dj-purple); color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; }
+  .cv-invest-total .lbl { font-size: 12px; font-weight: 500; opacity: .85; }
+  .cv-invest-total .val { font-size: 22px; font-weight: 800; }
+  .cv-invest-total-right { text-align: right; }
+  .cv-invest-total-right .lbl { font-size: 12px; font-weight: 500; opacity: .85; }
+  .cv-invest-total-right .val { font-size: 22px; font-weight: 800; }
+
+  /* Stats */
+  .cv-stats { display: flex; justify-content: center; gap: 0; background: #fff; border: 1px solid var(--dj-border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+  .cv-stat { flex: 1; text-align: center; padding: 16px 8px; border-right: 1px solid var(--dj-border); }
+  .cv-stat:last-child { border-right: none; }
+  .cv-stat .sv { font-size: 20px; font-weight: 800; }
+  .cv-stat .sl { font-size: 11px; color: var(--dj-muted); margin-top: 2px; }
+  .cv-stat.green .sv { color: var(--dj-teal); }
+
+  /* Terms */
+  .cv-terms { background: #fff; border: 1px solid var(--dj-border); border-radius: 12px; margin-bottom: 20px; }
+  .cv-terms-hdr { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--dj-border); font-weight: 700; font-size: 15px; }
+  .cv-terms-body { padding: 16px 18px; font-size: 12px; color: var(--dj-muted); line-height: 1.7; }
+  .cv-terms-body strong { color: var(--dj-text); }
+
+  /* Bottom approval bar */
+  .cv-foot { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--dj-border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 910; box-shadow: 0 -4px 16px rgba(0,0,0,.07); }
+  .cv-foot .tot-lbl { font-size: 11px; color: var(--dj-muted); font-weight: 500; }
+  .cv-foot .tot-val { font-size: 22px; font-weight: 800; }
+  .cv-approve-btn { background: var(--dj-teal); color: #fff; border: none; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .15s; }
+  .cv-approve-btn:hover { background: #0d9488; }
+  .cv-approve-btn:disabled { opacity: .45; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -221,7 +299,7 @@
 <div class="action-bar">
   <button class="btn-ol"><i class="fas fa-eye"></i> View Deal</button>
   <button class="btn-ol"><i class="fas fa-file-alt"></i> Work Order <i class="fas fa-caret-down" style="font-size:10px"></i></button>
-  <button class="btn-ol"><i class="fas fa-user"></i> Customer View</button>
+  <button class="btn-ol" onclick="openCustomerView()"><i class="fas fa-user"></i> Customer View</button>
   <button class="btn-ol" style="padding:6px 10px"><i class="fas fa-copy"></i></button>
 </div>
 
@@ -241,6 +319,67 @@
   <div class="add-btns">
     <button class="btn-sm" onclick="toast('Add Package flow — not in scope of this prototype.')">Add Package</button>
     <button class="btn-pri" style="font-size:12px;padding:5px 14px"><i class="fas fa-question-circle"></i> How It Works</button>
+  </div>
+</div>
+
+<!-- ═══════════ CUSTOMER VIEW ═══════════ -->
+<div class="cv-ov" id="cvOv">
+  <div class="cv-topbar">
+    <div class="logo">DripJobs</div>
+    <button class="back-btn" onclick="closeCustomerView()"><i class="fas fa-arrow-left"></i> Back to Proposal</button>
+  </div>
+  <div class="cv-body">
+    <div class="cv-proposal-info">
+      <h2>Bobby Baccalieri</h2>
+      <div class="cv-meta">Three Lakes Rd, Three Lakes, WA, 98290 &nbsp;·&nbsp; Proposal #2545468</div>
+    </div>
+    <div class="cv-pkg-grid" id="cvPkgGrid"></div>
+    <div class="cv-invest">
+      <div class="cv-invest-hdr">
+        <div class="cv-invest-icon"><i class="fas fa-calculator"></i></div>
+        <span>Your Investment</span>
+      </div>
+      <div class="cv-invest-row" id="cvSelectedRow" style="display:none">
+        <span id="cvSelectedLabel">Package</span>
+        <span id="cvSelectedAmt">$0.00</span>
+      </div>
+      <div class="cv-invest-row">
+        <span>Tax</span>
+        <span>$0.00</span>
+      </div>
+      <div class="cv-invest-total">
+        <div>
+          <div class="lbl">Project Total</div>
+          <div class="val" id="cvProjectTotal">$0.00</div>
+        </div>
+        <div class="cv-invest-total-right">
+          <div class="lbl">Balance at Completion</div>
+          <div class="val" id="cvBalance">$0.00</div>
+        </div>
+      </div>
+    </div>
+    <div class="cv-stats">
+      <div class="cv-stat"><div class="sv">2000+</div><div class="sl">Projects Completed</div></div>
+      <div class="cv-stat"><div class="sv">4</div><div class="sl">Years in Business</div></div>
+      <div class="cv-stat"><div class="sv">5.0<i class="fas fa-star" style="font-size:14px;color:#F59E0B;margin-left:2px"></i></div><div class="sl">Google Rating</div></div>
+      <div class="cv-stat green"><div class="sv">100%</div><div class="sl">Satisfaction Guaranteed</div></div>
+    </div>
+    <div class="cv-terms">
+      <div class="cv-terms-hdr"><div class="cv-invest-icon"><i class="fas fa-file-alt"></i></div> Terms and Conditions</div>
+      <div class="cv-terms-body">
+        <strong>We propose hereby to furnish material and labor - complete in accordance with above specifications.</strong><br><br>
+        All material is guaranteed to be as specified. All work is to be completed in a substantial workmanlike manner according to the standard practices. Any alteration or deviation from above specifications involving extra costs will be executed only upon written orders, and so will become an extra charge over and above the estimate. If either party commences legal action to enforce its rights pursuant to this agreement, the prevailing party in said legal action shall be entitled to recover its reasonable attorney's fees and costs of litigation relating to said legal action.
+      </div>
+    </div>
+  </div>
+  <div class="cv-foot">
+    <div>
+      <div class="tot-lbl">Project Total</div>
+      <div class="tot-val" id="cvFootTotal">$0.00</div>
+    </div>
+    <button class="cv-approve-btn" id="cvApproveBtn" onclick="toast('Approval submitted — not in scope of this prototype.')">
+      <i class="fas fa-check-circle"></i> Approve
+    </button>
   </div>
 </div>
 
@@ -707,6 +846,73 @@ function resetAll() {
 }
 
 render();
+
+/* ═══ CUSTOMER VIEW ═══ */
+let cvSelectedId = null;
+
+function openCustomerView() {
+  cvSelectedId = null;
+  renderCustomerView();
+  document.getElementById('cvOv').classList.add('on');
+  document.getElementById('cvOv').scrollTop = 0;
+}
+function closeCustomerView() {
+  document.getElementById('cvOv').classList.remove('on');
+}
+
+function renderCustomerView() {
+  const grid = document.getElementById('cvPkgGrid');
+  const features = ['Exterior Painting', 'General Prep', 'No Warranty'];
+
+  grid.innerHTML = pkgs.map(p => {
+    const isRec = p.starred;
+    const isSel = cvSelectedId === p.id;
+    const ribbonHtml = isRec ? `<div class="cv-ribbon">Recommended</div>` : '';
+    const featureHtml = features.map(f =>
+      `<li>${esc(f)}<span class="chk"><i class="fas fa-check"></i></span></li>`
+    ).join('');
+    const btnLabel = isSel ? `<i class="fas fa-check-circle"></i> Selected<br><small style="font-weight:400;font-size:11px">(click to remove)</small>` : 'Select Package';
+    const cardClass = `cv-pkg-card${isRec ? ' cv-recommended' : ''}${isSel ? ' cv-selected' : ''}`;
+    const [whole, cents] = fmt(p.price).replace('$','').split('.');
+    return `
+    <div class="${cardClass}" onclick="cvSelectPkg('${p.id}')">
+      ${ribbonHtml}
+      <div class="cv-radio"></div>
+      <div class="cv-pkg-name">${esc(p.name)}</div>
+      <div class="cv-pkg-desc">${esc(p.desc)}</div>
+      <div class="cv-pkg-price"><sup>$</sup><span class="amt">${whole.replace(/,/g,'').toLocaleString()}</span></div>
+      <div class="cv-pkg-divider"></div>
+      <ul class="cv-feat-list">${featureHtml}</ul>
+      <button class="cv-select-btn${isSel ? ' selected' : ''}">${btnLabel}</button>
+    </div>`;
+  }).join('');
+
+  updateCvTotals();
+}
+
+function cvSelectPkg(id) {
+  cvSelectedId = cvSelectedId === id ? null : id;
+  renderCustomerView();
+}
+
+function updateCvTotals() {
+  const p = pkgs.find(x => x.id === cvSelectedId);
+  const total = p ? p.price : 0;
+  const totalFmt = fmt(total);
+
+  document.getElementById('cvProjectTotal').textContent = totalFmt;
+  document.getElementById('cvBalance').textContent = totalFmt;
+  document.getElementById('cvFootTotal').textContent = totalFmt;
+
+  const selRow = document.getElementById('cvSelectedRow');
+  if (p) {
+    selRow.style.display = 'flex';
+    document.getElementById('cvSelectedLabel').textContent = p.name;
+    document.getElementById('cvSelectedAmt').textContent = fmt(p.price);
+  } else {
+    selRow.style.display = 'none';
+  }
+}
 </script>
 </body>
 </html>
