@@ -532,6 +532,15 @@
     </div>
     <div class="m-body">
 
+      <!-- Source ref — only shown for duplicated packages -->
+      <div class="fgrp" id="eSrcRefRow" style="display:none">
+        <label class="flbl">Source Package Price</label>
+        <div class="ref-box">
+          <span class="rl"><i class="fas fa-lock" style="font-size:11px"></i> <span id="eSrcName"></span></span>
+          <span class="rv" id="eSrcPrice"></span>
+        </div>
+      </div>
+
       <!-- Name -->
       <div class="fgrp">
         <label class="flbl" for="eName">Package Name <span class="req">*</span></label>
@@ -545,20 +554,52 @@
         <input type="text" class="finput" id="eDesc" placeholder="Package description"/>
       </div>
 
-      <!-- Price -->
+      <!-- Mode toggle -->
       <div class="fgrp">
-        <label class="flbl">Package Price</label>
-        <div class="ig" id="ePriceGrp">
-          <span class="ia">$</span>
-          <input type="number" id="ePrice" min="0.01" step="0.01" placeholder="0.00" oninput="calcEditPrice()" style="text-align:right"/>
+        <label class="flbl">Pricing Adjustment Method</label>
+        <div class="mode-tog">
+          <button class="mode-btn active" id="eBtnFlat" onclick="setEditMode('flat')">
+            <span class="mi"><i class="fas fa-dollar-sign"></i></span>Set New Price
+          </button>
+          <button class="mode-btn" id="eBtnPct" onclick="setEditMode('pct')">
+            <span class="mi"><i class="fas fa-percent"></i></span>Adjust by %
+          </button>
         </div>
-        <div class="errmsg" id="ePriceErr">Price must be greater than $0.</div>
-        <div class="res-box" id="eRes" style="margin-top:12px">
+      </div>
+
+      <!-- FLAT fields -->
+      <div id="eFlatFields" class="fgrp">
+        <label class="flbl">New Package Price</label>
+        <div class="ig" id="eFlatGrp">
+          <span class="ia">$</span>
+          <input type="number" id="eFlat" min="0.01" step="0.01" placeholder="0.00" oninput="calcEditFlat()" style="text-align:right"/>
+        </div>
+        <div class="hint"><i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0"></i> Enter the exact price. Leave blank to keep the current price.</div>
+        <div class="errmsg" id="eFlatErr">Price must be greater than $0.</div>
+        <div class="res-box" id="eFlatRes">
           <div>
-            <div class="res-lbl" id="eResLbl">Package Price</div>
-            <div style="font-size:11px;color:var(--dj-purple);margin-top:1px" id="eResFml"></div>
+            <div class="res-lbl" id="eFlatResLbl">Package Price</div>
+            <div style="font-size:11px;color:var(--dj-purple);margin-top:1px" id="eFlatResFml"></div>
           </div>
-          <div class="res-val" id="eResVal"></div>
+          <div class="res-val" id="eFlatResVal"></div>
+        </div>
+      </div>
+
+      <!-- PCT fields -->
+      <div id="ePctFields" class="fgrp" style="display:none">
+        <label class="flbl">Price Adjustment (%)</label>
+        <div class="ig" id="ePctGrp">
+          <input type="number" id="ePct" placeholder="0" step="0.1" oninput="calcEditPct()" style="text-align:right"/>
+          <span class="ia r">%</span>
+        </div>
+        <div class="hint"><i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0"></i> Positive % increases price, negative % decreases. Leave blank or 0 for no change.</div>
+        <div class="errmsg" id="ePctErr">The adjusted price must be greater than $0.</div>
+        <div class="res-box" id="ePctRes">
+          <div>
+            <div class="res-lbl" id="ePctResLbl">Package Price</div>
+            <div style="font-size:11px;color:var(--dj-purple);margin-top:1px" id="ePctResFml"></div>
+          </div>
+          <div class="res-val" id="ePctResVal"></div>
         </div>
       </div>
 
@@ -583,7 +624,7 @@
       <div class="tog-row">
         <div class="tog-info">
           <div class="tt">Hide Non-Included Items</div>
-          <div class="td">Hides features not included in this package from customer view.</div>
+          <div class="td">Hides features not included in this package from customer view. Use this when a feature like warranty length increases per tier rather than being added or removed.</div>
         </div>
         <div class="tog-right">
           <label class="djtog">
@@ -593,11 +634,11 @@
         </div>
       </div>
 
-      <!-- Show % Difference — only visible for duplicated packages -->
+      <!-- Show % Difference — only for duplicated packages -->
       <div class="tog-row" id="eShowPctRow" style="margin-bottom:0;display:none">
         <div class="tog-info">
           <div class="tt">Show % Difference to Customer</div>
-          <div class="td">Display the price difference percentage compared to the source package on the customer-facing view.</div>
+          <div class="td">Display the price difference percentage compared to the source package on the customer-facing proposal view (e.g. <strong>+15%</strong> or <strong>−10%</strong>).</div>
         </div>
         <div class="tog-right">
           <label class="djtog">
@@ -941,21 +982,36 @@ render();
 
 /* ═══ EDIT MODAL ═══ */
 let editId = null;
+let editMode = 'flat';
 
 function openEditModal(id) {
   const p = pkgs.find(x => x.id === id);
   editId = id;
+
+  // Source ref — only for duplicated packages
+  const srcRow = document.getElementById('eSrcRefRow');
+  if (p.srcPrice != null) {
+    srcRow.style.display = 'block';
+    document.getElementById('eSrcName').textContent = p.srcName || 'Source';
+    document.getElementById('eSrcPrice').textContent = fmt(p.srcPrice);
+  } else {
+    srcRow.style.display = 'none';
+  }
+
   document.getElementById('eName').value = p.name;
   document.getElementById('eDesc').value = p.desc;
-  document.getElementById('ePrice').value = p.price;
+  document.getElementById('eFlat').value = p.price;
+  document.getElementById('ePct').value = '';
   document.getElementById('eTogTax').checked = false;
   document.getElementById('eTogHide').checked = false;
   document.getElementById('eTaxBadge').style.display = 'none';
   document.getElementById('eConfirmBtn').disabled = false;
   document.getElementById('eName').classList.remove('bad');
   document.getElementById('eNameErr').classList.remove('on');
-  document.getElementById('ePriceGrp').classList.remove('bad');
-  document.getElementById('ePriceErr').classList.remove('on');
+  document.getElementById('eFlatGrp').classList.remove('bad');
+  document.getElementById('eFlatErr').classList.remove('on');
+  document.getElementById('ePctGrp').classList.remove('bad');
+  document.getElementById('ePctErr').classList.remove('on');
 
   // Show % Difference toggle only for duplicated packages
   const showPctRow = document.getElementById('eShowPctRow');
@@ -967,7 +1023,7 @@ function openEditModal(id) {
     document.getElementById('eTogShowPct').checked = false;
   }
 
-  calcEditPrice();
+  setEditMode('flat');
   document.getElementById('editOv').classList.add('on');
 }
 
@@ -980,38 +1036,82 @@ function editOvClick(e) {
   if (e.target === document.getElementById('editOv')) closeEditModal();
 }
 
-function calcEditPrice() {
+function setEditMode(m) {
+  editMode = m;
+  document.getElementById('eBtnFlat').classList.toggle('active', m === 'flat');
+  document.getElementById('eBtnPct').classList.toggle('active', m === 'pct');
+  document.getElementById('eFlatFields').style.display = m === 'flat' ? 'block' : 'none';
+  document.getElementById('ePctFields').style.display = m === 'pct' ? 'block' : 'none';
+  m === 'flat' ? calcEditFlat() : calcEditPct();
+}
+
+function editBasePrice() {
   const p = pkgs.find(x => x.id === editId);
-  if (!p) return;
-  const raw = document.getElementById('ePrice').value;
+  return p ? p.price : 0;
+}
+
+function calcEditFlat() {
+  const base = editBasePrice();
+  const raw = document.getElementById('eFlat').value;
   const v = raw === '' ? null : parseFloat(raw);
-  const box = document.getElementById('eRes');
-  const vEl = document.getElementById('eResVal');
-  const lEl = document.getElementById('eResLbl');
-  const fEl = document.getElementById('eResFml');
-  const eEl = document.getElementById('ePriceErr');
-  const gEl = document.getElementById('ePriceGrp');
+  const box = document.getElementById('eFlatRes');
+  const vEl = document.getElementById('eFlatResVal');
+  const lEl = document.getElementById('eFlatResLbl');
+  const fEl = document.getElementById('eFlatResFml');
+  const eEl = document.getElementById('eFlatErr');
+  const gEl = document.getElementById('eFlatGrp');
   box.classList.remove('warn', 'err');
   eEl.classList.remove('on'); gEl.classList.remove('bad');
   document.getElementById('eConfirmBtn').disabled = false;
-  const setColor = c => { vEl.style.color = c; lEl.style.color = c; fEl.style.color = c; };
-
-  if (v === null || isNaN(v)) {
-    vEl.textContent = fmt(p.price); lEl.textContent = 'Current Price';
-    fEl.textContent = 'No change'; setColor('var(--dj-purple)');
+  const sc = c => { vEl.style.color = c; lEl.style.color = c; fEl.style.color = c; };
+  if (v === null) {
+    vEl.textContent = fmt(base); lEl.textContent = 'Package Price';
+    fEl.textContent = 'Using current price — no change'; sc('var(--dj-purple)');
   } else if (v <= 0) {
     box.classList.add('err'); eEl.classList.add('on'); gEl.classList.add('bad');
     document.getElementById('eConfirmBtn').disabled = true;
     vEl.textContent = '$0.00'; lEl.textContent = 'Invalid Price';
-    fEl.textContent = 'Price must be greater than $0'; setColor('var(--dj-danger)');
-  } else if (v < p.price) {
+    fEl.textContent = 'Price must be greater than $0'; sc('var(--dj-danger)');
+  } else if (v < base) {
     box.classList.add('warn');
-    vEl.textContent = fmt(v); lEl.textContent = 'New Price';
-    fEl.textContent = `Decrease from ${fmt(p.price)} → ${fmt(v)}`; setColor('#92400E');
+    vEl.textContent = fmt(v); lEl.textContent = 'New Package Price';
+    fEl.textContent = `Decrease from ${fmt(base)} → ${fmt(v)}`; sc('#92400E');
   } else {
-    vEl.textContent = fmt(v); lEl.textContent = 'New Price';
-    fEl.textContent = v > p.price ? `Increase from ${fmt(p.price)} → ${fmt(v)}` : 'Same as current price';
-    setColor('var(--dj-purple)');
+    vEl.textContent = fmt(v); lEl.textContent = 'New Package Price';
+    fEl.textContent = v > base ? `Increase from ${fmt(base)} → ${fmt(v)}` : 'Same as current price'; sc('var(--dj-purple)');
+  }
+}
+
+function calcEditPct() {
+  const base = editBasePrice();
+  const raw = document.getElementById('ePct').value;
+  const pct = raw === '' ? 0 : parseFloat(raw);
+  const adj = base * (1 + pct / 100);
+  const box = document.getElementById('ePctRes');
+  const vEl = document.getElementById('ePctResVal');
+  const lEl = document.getElementById('ePctResLbl');
+  const fEl = document.getElementById('ePctResFml');
+  const eEl = document.getElementById('ePctErr');
+  const gEl = document.getElementById('ePctGrp');
+  box.classList.remove('warn', 'err');
+  eEl.classList.remove('on'); gEl.classList.remove('bad');
+  document.getElementById('eConfirmBtn').disabled = false;
+  const sc = c => { vEl.style.color = c; lEl.style.color = c; fEl.style.color = c; };
+  if (adj <= 0) {
+    box.classList.add('err'); eEl.classList.add('on'); gEl.classList.add('bad');
+    document.getElementById('eConfirmBtn').disabled = true;
+    vEl.textContent = '$0.00'; lEl.textContent = 'Invalid Adjustment';
+    fEl.textContent = 'Price cannot be $0 or less'; sc('var(--dj-danger)');
+  } else if (raw === '' || pct === 0) {
+    vEl.textContent = fmt(base); lEl.textContent = 'Package Price';
+    fEl.textContent = 'No adjustment — no change'; sc('var(--dj-purple)');
+  } else if (pct > 0) {
+    vEl.textContent = fmt(adj); lEl.textContent = 'New Package Price';
+    fEl.textContent = `${fmt(base)} + ${pct}% = ${fmt(adj)}`; sc('var(--dj-purple)');
+  } else {
+    box.classList.add('warn');
+    vEl.textContent = fmt(adj); lEl.textContent = 'New Package Price';
+    fEl.textContent = `${fmt(base)} ${pct}% = ${fmt(adj)}`; sc('#92400E');
   }
 }
 
@@ -1026,19 +1126,25 @@ function valEditName() {
 function doEdit() {
   if (!valEditName()) return;
   const p = pkgs.find(x => x.id === editId);
-  const raw = document.getElementById('ePrice').value;
-  const newPrice = raw === '' || isNaN(parseFloat(raw)) ? p.price : parseFloat(raw);
-  if (newPrice <= 0) return;
+  let newPrice;
+  if (editMode === 'flat') {
+    const r = document.getElementById('eFlat').value;
+    newPrice = r === '' ? p.price : parseFloat(r);
+    if (newPrice <= 0) return;
+  } else {
+    const pct = parseFloat(document.getElementById('ePct').value) || 0;
+    newPrice = p.price * (1 + pct / 100);
+    if (newPrice <= 0) return;
+  }
 
   p.name = document.getElementById('eName').value.trim();
   p.desc = document.getElementById('eDesc').value.trim();
+  p.price = newPrice;
 
-  // Recalculate pctDiff if this is a duplicate and price changed
   if (p.srcPrice != null) {
     p.pctDiff = Math.round(((newPrice - p.srcPrice) / p.srcPrice) * 100 * 10) / 10;
     p.showPctToCustomer = document.getElementById('eTogShowPct').checked;
   }
-  p.price = newPrice;
 
   closeEditModal();
   render();
