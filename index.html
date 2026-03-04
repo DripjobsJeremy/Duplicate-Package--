@@ -87,7 +87,6 @@
   .pkg-foot-tot { display: flex; align-items: center; gap: 16px; font-size: 13px; font-weight: 600; }
   .teal-price { background: var(--dj-teal); color: #fff; border-radius: 6px; padding: 5px 14px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
   .pkg-add-btns { display: flex; gap: 8px; padding: 10px 16px; }
-  .new-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--dj-purple); color: #fff; border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
   .star-badge { display: inline-flex; align-items: center; gap: 3px; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; }
   .sel-badge { display: inline-flex; align-items: center; gap: 3px; background: var(--dj-teal); color: #fff; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; }
 
@@ -411,7 +410,7 @@ let srcId = null;
 let delId = null;
 
 const pkgs = [
-  { id:'p1', name:'Good Package', desc:'This is a Good Package with some good stuff', price:1000, isNew:false, starred:false, selected:false }
+  { id:'p1', name:'Good Package', desc:'This is a Good Package with some good stuff', price:1000, starred:false, selected:false }
 ];
 
 /* ═══ RENDER ═══ */
@@ -423,7 +422,6 @@ function render() {
 
 function card(p) {
   const pf = fmt(p.price);
-  const nb = p.isNew ? `<span class="new-badge"><i class="fas fa-star" style="font-size:9px"></i> New</span>` : '';
   const sb = p.starred ? `<span class="star-badge"><i class="fas fa-star" style="font-size:9px"></i> Recommended</span>` : '';
   const xb = p.selected ? `<span class="sel-badge"><i class="fas fa-check-circle" style="font-size:9px"></i> Selected</span>` : '';
 
@@ -446,12 +444,12 @@ function card(p) {
     pctPill += visLabel;
   }
   return `
-  <div class="pkg-card${p.isNew?' new-card':''}" id="c-${p.id}">
+  <div class="pkg-card" id="c-${p.id}">
     <div class="pkg-hdr">
       <div class="pkg-title-blk">
         <div class="pkg-drag"><i class="fas fa-grip-vertical"></i></div>
         <div>
-          <div class="pkg-name">${esc(p.name)}${nb}${sb}${xb}</div>
+          <div class="pkg-name">${esc(p.name)}${sb}${xb}</div>
           <div class="pkg-desc">${esc(p.desc)}</div>
           ${pctPill ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">${pctPill}</div>` : ''}
         </div>
@@ -674,12 +672,12 @@ function doConfirm() {
   const name = document.getElementById('iName').value.trim();
   const pctDiff = src.price > 0 ? ((np - src.price) / src.price) * 100 : 0;
   const showPct = document.getElementById('togShowPct').checked;
-  const np2 = { id:'p'+uidx, name, desc:`Duplicated from ${src.name}`, price:np, isNew:true, starred:false, selected:false, srcPrice: src.price, srcName: src.name, pctDiff: Math.round(pctDiff * 10) / 10, showPctToCustomer: showPct };
+  const np2 = { id:'p'+uidx, name, desc:`Duplicated from ${src.name}`, price:np, starred:false, selected:false, srcPrice: src.price, srcName: src.name, pctDiff: Math.round(pctDiff * 10) / 10, showPctToCustomer: showPct };
   pkgs.push(np2);
   closeModal(); render();
   setTimeout(() => {
     const el = document.getElementById('c-'+np2.id);
-    if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>el.classList.remove('new-card'),3000); }
+    if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); }
   }, 100);
   toast(`"${name}" created successfully!`);
 }
