@@ -523,6 +523,98 @@
   </div>
 </div>
 
+<!-- ═══════════ EDIT MODAL ═══════════ -->
+<div class="m-ov" id="editOv" onclick="editOvClick(event)">
+  <div class="m-box">
+    <div class="m-hdr">
+      <h5><i class="fas fa-edit" style="color:var(--dj-purple);margin-right:6px"></i> Edit Package</h5>
+      <button class="m-close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <div class="m-body">
+
+      <!-- Name -->
+      <div class="fgrp">
+        <label class="flbl" for="eName">Package Name <span class="req">*</span></label>
+        <input type="text" class="finput" id="eName" placeholder="Enter package name" oninput="valEditName()"/>
+        <div class="errmsg" id="eNameErr">Package name is required.</div>
+      </div>
+
+      <!-- Description -->
+      <div class="fgrp">
+        <label class="flbl" for="eDesc">Description</label>
+        <input type="text" class="finput" id="eDesc" placeholder="Package description"/>
+      </div>
+
+      <!-- Price -->
+      <div class="fgrp">
+        <label class="flbl">Package Price</label>
+        <div class="ig" id="ePriceGrp">
+          <span class="ia">$</span>
+          <input type="number" id="ePrice" min="0.01" step="0.01" placeholder="0.00" oninput="calcEditPrice()" style="text-align:right"/>
+        </div>
+        <div class="errmsg" id="ePriceErr">Price must be greater than $0.</div>
+        <div class="res-box" id="eRes" style="margin-top:12px">
+          <div>
+            <div class="res-lbl" id="eResLbl">Package Price</div>
+            <div style="font-size:11px;color:var(--dj-purple);margin-top:1px" id="eResFml"></div>
+          </div>
+          <div class="res-val" id="eResVal"></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="divider"></div>
+      <div class="sub-lbl">Package Settings</div>
+
+      <div class="tog-row">
+        <div class="tog-info">
+          <div class="tt">Apply Tax</div>
+          <div class="td">Calculate tax on manual package price</div>
+        </div>
+        <div class="tog-right">
+          <span class="tax-badge" id="eTaxBadge">5.000%</span>
+          <label class="djtog">
+            <input type="checkbox" id="eTogTax" onchange="document.getElementById('eTaxBadge').style.display=this.checked?'inline-flex':'none'">
+            <span class="djslider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="tog-row">
+        <div class="tog-info">
+          <div class="tt">Hide Non-Included Items</div>
+          <div class="td">Hides features not included in this package from customer view.</div>
+        </div>
+        <div class="tog-right">
+          <label class="djtog">
+            <input type="checkbox" id="eTogHide">
+            <span class="djslider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Show % Difference — only visible for duplicated packages -->
+      <div class="tog-row" id="eShowPctRow" style="margin-bottom:0;display:none">
+        <div class="tog-info">
+          <div class="tt">Show % Difference to Customer</div>
+          <div class="td">Display the price difference percentage compared to the source package on the customer-facing view.</div>
+        </div>
+        <div class="tog-right">
+          <label class="djtog">
+            <input type="checkbox" id="eTogShowPct">
+            <span class="djslider"></span>
+          </label>
+        </div>
+      </div>
+
+    </div><!-- /m-body -->
+    <div class="m-foot">
+      <button class="btn-ol" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-pri" id="eConfirmBtn" onclick="doEdit()"><i class="fas fa-check"></i> Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════ DELETE CONFIRM ═══════════ -->
 <div class="conf-ov" id="confOv">
   <div class="conf-box">
@@ -599,7 +691,7 @@ function card(p) {
           <button class="btn-keb" onclick="toggleDD(event,'dd-${p.id}')"><i class="fas fa-ellipsis-v"></i></button>
           <div class="dd-menu" id="dd-${p.id}">
             <div class="dd-sec">ACTIONS</div>
-            <button class="dd-item" onclick="closeDD();toast('Edit Package — not in scope of this prototype.')">
+            <button class="dd-item" onclick="closeDD();openEditModal('${p.id}')">
               <span class="ico"><i class="fas fa-edit"></i></span> Edit Package
             </button>
             <button class="dd-item" onclick="closeDD();openModal('${p.id}')">
@@ -846,6 +938,112 @@ function resetAll() {
 }
 
 render();
+
+/* ═══ EDIT MODAL ═══ */
+let editId = null;
+
+function openEditModal(id) {
+  const p = pkgs.find(x => x.id === id);
+  editId = id;
+  document.getElementById('eName').value = p.name;
+  document.getElementById('eDesc').value = p.desc;
+  document.getElementById('ePrice').value = p.price;
+  document.getElementById('eTogTax').checked = false;
+  document.getElementById('eTogHide').checked = false;
+  document.getElementById('eTaxBadge').style.display = 'none';
+  document.getElementById('eConfirmBtn').disabled = false;
+  document.getElementById('eName').classList.remove('bad');
+  document.getElementById('eNameErr').classList.remove('on');
+  document.getElementById('ePriceGrp').classList.remove('bad');
+  document.getElementById('ePriceErr').classList.remove('on');
+
+  // Show % Difference toggle only for duplicated packages
+  const showPctRow = document.getElementById('eShowPctRow');
+  if (p.srcPrice != null) {
+    showPctRow.style.display = 'flex';
+    document.getElementById('eTogShowPct').checked = !!p.showPctToCustomer;
+  } else {
+    showPctRow.style.display = 'none';
+    document.getElementById('eTogShowPct').checked = false;
+  }
+
+  calcEditPrice();
+  document.getElementById('editOv').classList.add('on');
+}
+
+function closeEditModal() {
+  document.getElementById('editOv').classList.remove('on');
+  editId = null;
+}
+
+function editOvClick(e) {
+  if (e.target === document.getElementById('editOv')) closeEditModal();
+}
+
+function calcEditPrice() {
+  const p = pkgs.find(x => x.id === editId);
+  if (!p) return;
+  const raw = document.getElementById('ePrice').value;
+  const v = raw === '' ? null : parseFloat(raw);
+  const box = document.getElementById('eRes');
+  const vEl = document.getElementById('eResVal');
+  const lEl = document.getElementById('eResLbl');
+  const fEl = document.getElementById('eResFml');
+  const eEl = document.getElementById('ePriceErr');
+  const gEl = document.getElementById('ePriceGrp');
+  box.classList.remove('warn', 'err');
+  eEl.classList.remove('on'); gEl.classList.remove('bad');
+  document.getElementById('eConfirmBtn').disabled = false;
+  const setColor = c => { vEl.style.color = c; lEl.style.color = c; fEl.style.color = c; };
+
+  if (v === null || isNaN(v)) {
+    vEl.textContent = fmt(p.price); lEl.textContent = 'Current Price';
+    fEl.textContent = 'No change'; setColor('var(--dj-purple)');
+  } else if (v <= 0) {
+    box.classList.add('err'); eEl.classList.add('on'); gEl.classList.add('bad');
+    document.getElementById('eConfirmBtn').disabled = true;
+    vEl.textContent = '$0.00'; lEl.textContent = 'Invalid Price';
+    fEl.textContent = 'Price must be greater than $0'; setColor('var(--dj-danger)');
+  } else if (v < p.price) {
+    box.classList.add('warn');
+    vEl.textContent = fmt(v); lEl.textContent = 'New Price';
+    fEl.textContent = `Decrease from ${fmt(p.price)} → ${fmt(v)}`; setColor('#92400E');
+  } else {
+    vEl.textContent = fmt(v); lEl.textContent = 'New Price';
+    fEl.textContent = v > p.price ? `Increase from ${fmt(p.price)} → ${fmt(v)}` : 'Same as current price';
+    setColor('var(--dj-purple)');
+  }
+}
+
+function valEditName() {
+  const v = document.getElementById('eName').value.trim();
+  const ok = !!v;
+  document.getElementById('eNameErr').classList.toggle('on', !ok);
+  document.getElementById('eName').classList.toggle('bad', !ok);
+  return ok;
+}
+
+function doEdit() {
+  if (!valEditName()) return;
+  const p = pkgs.find(x => x.id === editId);
+  const raw = document.getElementById('ePrice').value;
+  const newPrice = raw === '' || isNaN(parseFloat(raw)) ? p.price : parseFloat(raw);
+  if (newPrice <= 0) return;
+
+  p.name = document.getElementById('eName').value.trim();
+  p.desc = document.getElementById('eDesc').value.trim();
+
+  // Recalculate pctDiff if this is a duplicate and price changed
+  if (p.srcPrice != null) {
+    p.pctDiff = Math.round(((newPrice - p.srcPrice) / p.srcPrice) * 100 * 10) / 10;
+    p.showPctToCustomer = document.getElementById('eTogShowPct').checked;
+  }
+  p.price = newPrice;
+
+  closeEditModal();
+  render();
+  toast(`"${p.name}" updated.`);
+}
 
 /* ═══ CUSTOMER VIEW ═══ */
 let cvSelectedId = null;
