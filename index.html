@@ -873,7 +873,20 @@ function renderCustomerView() {
     ).join('');
     const btnLabel = isSel ? `<i class="fas fa-check-circle"></i> Selected<br><small style="font-weight:400;font-size:11px">(click to remove)</small>` : 'Select Package';
     const cardClass = `cv-pkg-card${isRec ? ' cv-recommended' : ''}${isSel ? ' cv-selected' : ''}`;
-    const [whole, cents] = fmt(p.price).replace('$','').split('.');
+    const [whole] = fmt(p.price).replace('$','').split('.');
+
+    let pctBadge = '';
+    if (p.showPctToCustomer && p.pctDiff != null && p.srcName) {
+      const d = p.pctDiff;
+      if (d === 0) {
+        pctBadge = `<div style="text-align:center;margin-bottom:10px"><span class="pct-pill flat"><i class="fas fa-equals" style="font-size:10px"></i> 0% vs ${esc(p.srcName)}</span></div>`;
+      } else if (d > 0) {
+        pctBadge = `<div style="text-align:center;margin-bottom:10px"><span class="pct-pill up"><i class="fas fa-arrow-up" style="font-size:10px"></i> +${d.toFixed(1)}% vs ${esc(p.srcName)}</span></div>`;
+      } else {
+        pctBadge = `<div style="text-align:center;margin-bottom:10px"><span class="pct-pill dn"><i class="fas fa-arrow-down" style="font-size:10px"></i> ${d.toFixed(1)}% vs ${esc(p.srcName)}</span></div>`;
+      }
+    }
+
     return `
     <div class="${cardClass}" onclick="cvSelectPkg('${p.id}')">
       ${ribbonHtml}
@@ -881,6 +894,7 @@ function renderCustomerView() {
       <div class="cv-pkg-name">${esc(p.name)}</div>
       <div class="cv-pkg-desc">${esc(p.desc)}</div>
       <div class="cv-pkg-price"><sup>$</sup><span class="amt">${whole.replace(/,/g,'').toLocaleString()}</span></div>
+      ${pctBadge}
       <div class="cv-pkg-divider"></div>
       <ul class="cv-feat-list">${featureHtml}</ul>
       <button class="cv-select-btn${isSel ? ' selected' : ''}">${btnLabel}</button>
